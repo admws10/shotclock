@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>24sekundová časomíra</title>
+  <link href="https://fonts.cdnfonts.com/css/digital-7-mono" rel="stylesheet">
+  <style>
+    body {
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #timer {
+      font-family: 'Digital-7 Mono', monospace;
+      font-size: 25vw;
+      color: red;
+      transition: color 0.2s;
+    }
+  </style>
+</head>
+<body>
+  <div id="timer">24</div>
+  <audio id="buzzer" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/nba-horn.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const timerDisplay = document.getElementById("timer");
+    const buzzer = document.getElementById("buzzer");
+
+    let timeLeft = 24;
+    let interval = null;
+    let isPrecise = false;
+
+    function startTimer(seconds) {
+      clearInterval(interval);
+      timeLeft = seconds;
+      isPrecise = false;
+      updateDisplay();
+
+      interval = setInterval(() => {
+        // Při přechodu pod 5s přepneme na 100ms interval
+        if (timeLeft <= 5 && !isPrecise) {
+          clearInterval(interval);
+          isPrecise = true;
+          interval = setInterval(tickPrecise, 100);
+        } else {
+          timeLeft -= 1;
+          updateDisplay();
+          if (timeLeft <= 5) {
+            clearInterval(interval);
+            isPrecise = true;
+            interval = setInterval(tickPrecise, 100);
+          }
+        }
+      }, 1000);
+    }
+
+    function tickPrecise() {
+      timeLeft -= 0.1;
+      if (timeLeft <= 0) {
+        timeLeft = 0;
+        updateDisplay();
+        clearInterval(interval);
+        playSound();
+        flashRed();
+      } else {
+        updateDisplay();
+      }
+    }
+
+    function updateDisplay() {
+      if (timeLeft > 5) {
+        timerDisplay.textContent = Math.ceil(timeLeft).toString().padStart(2, '0');
+      } else {
+        timerDisplay.textContent = timeLeft.toFixed(1);
+      }
+    }
+
+    function flashRed() {
+      let flashes = 0;
+      const flashInterval = setInterval(() => {
+        timerDisplay.style.visibility = (timerDisplay.style.visibility === 'hidden') ? 'visible' : 'hidden';
+        flashes++;
+        if (flashes >= 6) {
+          clearInterval(flashInterval);
+          timerDisplay.style.visibility = 'visible';
+        }
+      }, 300);
+    }
+
+    function playSound() {
+      buzzer.currentTime = 0;
+      buzzer.play().catch(e => {
+        console.log("⚠️ Zvuk se nespustil automaticky – klikni myší na stránku.");
+      });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        startTimer(24);
+      } else if (e.code === "Enter") {
+        startTimer(14);
+      }
+    });
+
+    updateDisplay();
+  </script>
+</body>
+</html>
