@@ -25,7 +25,8 @@
 <body>
   <div id="timer">24</div>
   <audio id="buzzer" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/nba-horn.mp3" type="audio/mpeg">
+    <!-- Odkaz na MP3 soubor v kořenovém adresáři -->
+    <source src="https://raw.githubusercontent.com/uzivatelske-jmeno/repozitar/main/sound.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -43,7 +44,6 @@
       updateDisplay();
 
       interval = setInterval(() => {
-        // Při přechodu pod 5s přepneme na 100ms interval
         if (timeLeft <= 5 && !isPrecise) {
           clearInterval(interval);
           isPrecise = true;
